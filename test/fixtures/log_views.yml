@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  project_id: 
+  log_type_id: 
+  log_file: MyString
+
+two:
+  project_id: 
+  log_type_id: 
+  log_file: MyString

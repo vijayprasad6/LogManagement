@@ -1,0 +1,31 @@
+images_to_comp = images[1,images.length - 1]
+
+	output = ChunkyPNG::Image.new(images.first.width, images.last.width, ChunkyPNG::Color::TRANSPARENT)
+
+	diff = []
+
+	images.first.height.times do |y|
+
+	  images.first.row(y).each_with_index do |pixel, x|
+	 
+		 images_to_comp.each do |img|		 	
+			    unless pixel == img[x,y]
+			      score = Math.sqrt(
+			        (ChunkyPNG::Color.r(img[x,y]) - ChunkyPNG::Color.r(pixel)) ** 2 +
+			        (ChunkyPNG::Color.g(img[x,y]) - ChunkyPNG::Color.g(pixel)) ** 2 +
+			        (ChunkyPNG::Color.b(img[x,y]) - ChunkyPNG::Color.b(pixel)) ** 2
+			      ) / Math.sqrt(255 ** 2 * 3)
+
+			      output[x,y] = ChunkyPNG::Color.grayscale(255 - (score * 255).round)
+			      diff << score
+			    end
+			    	num =1
+			     output.save("./public/#{num}_diff.png")
+			     #puts "pixels (total):     #{images.first.pixels.length}"
+	 			 #puts "pixels changed:     #{diff.length}"
+     			 #puts "image changed (%): #{(diff.inject {|sum, value| sum + value} / images.first.pixels.length) * 100}%"
+     			 diff = []
+     			 num = num+1
+			end    
+	  	end
+	  end 

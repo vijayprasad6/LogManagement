@@ -1,0 +1,88 @@
+<%- model_class = LogView -%>
+<div class="page-header">
+  <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
+</div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%= model_class.human_attribute_name(:project_id) %></th>
+      <th><%= model_class.human_attribute_name(:log_type_id) %></th>
+      <th><%= model_class.human_attribute_name(:log_file) %></th>
+       <th><%=  "Generate Report"%></th>
+      <th><%= model_class.human_attribute_name(:created_at) %></th>
+      <th><%=t '.actions', :default => t("helpers.actions") %></th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <div><%= form_tag(log_views_path, :method => "get", id: "search-form") do %>
+
+      <%#= select("log_view", "log_type_id", LogType.all.collect {|p| [ p.name, p.id ] }, {include_blank: 'Log Type'}, {:selected => params[:log_view][:log_type_id].to_s} )%>
+       <% 
+        if params.has_key?(:log_view) && params[:log_view][:log_type_id].present?
+
+        %>
+            <%= select("log_view", "log_type_id", 
+  options_from_collection_for_select(LogType.all, :id, :name, params[:log_view][:log_type_id].to_i) , include_blank: 'Log Type' )%>
+        <%
+        else
+        %>
+            <%= select("log_view", "log_type_id", 
+  options_from_collection_for_select(LogType.all, :id, :name) , include_blank: 'Log Type' )%>
+        <%
+        end
+        if params.has_key?(:log_view) && params[:log_view][:project_id].present?
+        %>
+         <%= select("log_view", "project_id", 
+  options_from_collection_for_select(Project.all, :id, :project_name, params[:log_view][:project_id].to_i) , include_blank: 'Project' )%>
+        <%
+        else
+          %>
+            <%= select("log_view", "project_id", 
+  options_from_collection_for_select(Project.all, :id, :project_name) , include_blank: 'Project' )%>
+       <% end
+       %>
+      
+  <%#= collection_select(:log_view, :project_id, Project.all, :id, :project_name, {include_blank: 'Project'},{:selected=> params[:log_view][:project_id].to_s})%>
+  
+  <%#= text_field_tag :project_id, params[:project_id], placeholder: "Select Project" %>
+  <%#= text_field_tag :log_type, params[:log_type], placeholder: "Select Log Type" %>
+  <%= submit_tag "Search" ,:class => 'btn btn-xs btn-info'%> <%= submit_tag "Reset",:class => 'btn btn-xs btn-info' %>
+  <p>&nbsp;</p>
+</div>
+<% end %>
+  <% if @log_views.present? %>
+    <% @log_views.each do |log_view| %> 
+      <tr>
+        <td><%= link_to log_view.id, log_view_path(log_view) %></td>
+        <td><%= log_view.project.project_name %></td>
+        <td><%= log_view.log_type.name %></td>
+        <td><%= link_to "Download File", log_view.log_file_url %></td>
+         <% if log_view.is_report_generated%>
+        <td><button type="button" class="btn btn-info">View Report</button></td>
+        <% else %>
+        <td> <%= link_to t('.generate_report', :default => t("helpers.links.generate_report")),
+                      generate_report_log_view_path(log_view), :class => 'btn btn-info btn-xs' %></td>
+        <% end%>
+        <td><%=l log_view.created_at %></td>
+        <td>
+          <%= link_to t('.edit', :default => t("helpers.links.edit")),
+                      edit_log_view_path(log_view), :class => 'btn btn-default btn-xs' %>
+          <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+                      log_view_path(log_view),
+                      :method => :delete,
+                      :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+                      :class => 'btn btn-xs btn-danger' %>
+        </td>
+      </tr>
+    <% end else %>
+    <tr><td>
+    There are no log view containing the term(s)</td> </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<%= link_to t('.new', :default => t("helpers.links.new")),
+            new_log_view_path,
+            :class => 'btn btn-primary' %>
